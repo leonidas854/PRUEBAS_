@@ -1,2 +1,2 @@
-# n-Queens
-repo de n reynas
+# pruebs
+Se haran pruebas de distintos programas
