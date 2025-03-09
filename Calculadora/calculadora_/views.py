@@ -14,7 +14,7 @@ def resta(request):
         a = float(request.GET.get('a', 0))
         b = float(request.GET.get('b', 0))
         resultado = a - b
-        return JsonResponse({'resultado': resultado})
+        return JsonResponse({'resultado':resultado})
     except ValueError:
         return JsonResponse({'error': 'Valores no válidos'}, status=400)
 
