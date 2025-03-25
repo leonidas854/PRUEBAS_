@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solucionador de N-Reinas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        input {
+            padding: 8px;
+            width: 60px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .solution-count {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border-radius: 4px;
+        }
+        .solutions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .solution {
+            margin-bottom: 30px;
+        }
+        .solution-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .chess-board {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        .chess-board td {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #333;
+            text-align: center;
+            font-size: 24px;
+        }
+        .chess-board tr:nth-child(odd) td:nth-child(even),
+        .chess-board tr:nth-child(even) td:nth-child(odd) {
+            background-color: #f0d9b5;
+        }
+        .chess-board tr:nth-child(odd) td:nth-child(odd),
+        .chess-board tr:nth-child(even) td:nth-child(even) {
+            background-color: #b58863;
+        }
+    </style>
+</head>
+<body>
+    <h1>Solucionador del Problema de las N-Reinas</h1>
+    
+    <div class="controls">
+        <label for="board-size">Tamaño del tablero (N):</label>
+        <input type="number" id="board-size" min="4" max="12" value="4">
+        <button onclick="solve()">Resolver</button>
+        <button onclick="clearAll()">Limpiar</button>
+    </div>
+    
+    <div id="solution-count" class="solution-count">
+        Total de soluciones: 0
+    </div>
+    
+    <div id="solutions-container" class="solutions-container"></div>
+
+    <script>
+        async function solve() {
+            const n = parseInt(document.getElementById('board-size').value);
+            if (n < 4 || n > 12) {
+                alert("Por favor ingrese un número entre 4 y 12");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/resolver/${n}/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Adaptación para el formato de respuesta esperado
+                const solutions = data.respuestas || [];
+                displaySolutions(solutions, n);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('solution-count').textContent = "Error al obtener las soluciones";
+            }
+        }
+
+        function displaySolutions(solutions, n) {
+            const container = document.getElementById('solutions-container');
+            const countDisplay = document.getElementById('solution-count');
+            
+            // Limpiar resultados anteriores
+            container.innerHTML = '';
+            
+            // Mostrar conteo de soluciones
+            countDisplay.textContent = `Total de soluciones: ${solutions.length}`;
+            
+            // Mostrar cada solución
+            solutions.forEach((solution, index) => {
+                const solutionDiv = document.createElement('div');
+                solutionDiv.className = 'solution';
+                
+                const title = document.createElement('div');
+                title.className = 'solution-title';
+                title.textContent = `Solución ${index + 1}`;
+                solutionDiv.appendChild(title);
+                
+                const board = document.createElement('table');
+                board.className = 'chess-board';
+                
+                // Crear el tablero de ajedrez
+                for (let i = 0; i < n; i++) {
+                    const row = board.insertRow();
+                    const solutionRow = solution[i].split('');
+                    for (let j = 0; j < n; j++) {
+                        const cell = row.insertCell();
+                        if (solutionRow[j] === 'Q') {
+                            cell.textContent = '♕';
+                        }
+                    }
+                }
+                
+                solutionDiv.appendChild(board);
+                container.appendChild(solutionDiv);
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('solutions-container').innerHTML = '';
+            document.getElementById('solution-count').textContent = 'Total de soluciones: 0';
+        }
+    </script>
+</body>
+</html>
